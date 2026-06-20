@@ -33,6 +33,9 @@ public class Transaction {
     @Column(name = "BALANCE_AFTER")
     private BigDecimal balanceAfter;
 
+    @Column(name = "TYPE")
+    private TransactionType type;
+
     @CreationTimestamp
     @Column(name = "CREATED_AT", nullable = false, updatable = false)
     private LocalDateTime createdAt;
