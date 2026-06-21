@@ -10,6 +10,7 @@ import com.swedbank.backend.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.UUID;
 
 @Service
@@ -73,7 +74,7 @@ public class BankService {
             finalBalance = currentBalance.add(amount);
         }
 
-        account.setBalance(finalBalance);
+        account.setBalance(finalBalance.setScale(2, RoundingMode.HALF_EVEN));
 
         accountRepository.save(account);
 
@@ -81,12 +82,12 @@ public class BankService {
         transaction.setAccount(account);
         transaction.setAmount(amount);
         transaction.setType(transactionType);
-        transaction.setBalanceBefore(currentBalance);
-        transaction.setBalanceAfter(finalBalance);
+        transaction.setBalanceBefore(currentBalance.setScale(2, RoundingMode.HALF_EVEN));
+        transaction.setBalanceAfter(finalBalance.setScale(2, RoundingMode.HALF_EVEN));
 
         transactionRepository.save(transaction);
 
-        return new TransactionResponseDTO(accountId, finalBalance, account.getCurrency().name());
+        return new TransactionResponseDTO(accountId, finalBalance.setScale(2, RoundingMode.HALF_EVEN), account.getCurrency().name());
     }
 }
 
