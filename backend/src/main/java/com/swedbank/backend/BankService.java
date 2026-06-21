@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -52,6 +53,15 @@ public class BankService {
         TransactionResponseDTO targetResponse = performTransaction(TransactionType.CREDIT, targetAccount.getId(), targetAmount);
 
         return new CurrencyExchangeResponseDTO(sourceResponse.finalBalance(), sourceResponse.currency(), targetResponse.finalBalance(), targetResponse.currency());
+    }
+
+    public List<TransactionOverviewResponseDTO> transactionHistory(UUID accountId) {
+        Account account = accountRepository.findById(accountId).orElseThrow();
+
+        return transactionRepository.findByAccount(account)
+                .stream()
+                .map(transaction -> new TransactionOverviewResponseDTO(transaction.getAmount(), transaction.getType(), transaction.getCreatedAt()))
+                .toList();
     }
 
     // -------------

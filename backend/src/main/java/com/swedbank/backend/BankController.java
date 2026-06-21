@@ -4,6 +4,7 @@ import com.swedbank.backend.dto.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -40,6 +41,13 @@ public class BankController {
     @PostMapping("/exchange")
     public ResponseEntity<CurrencyExchangeResponseDTO> exchange(@RequestBody CurrencyExchangeRequestDTO currencyExchangeRequest) {
         CurrencyExchangeResponseDTO response = bankService.currencyExchange(currencyExchangeRequest);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{accountId}/history")
+    public ResponseEntity<List<TransactionOverviewResponseDTO>> transactionHistory(@PathVariable("accountId") UUID accountId) {
+        List<TransactionOverviewResponseDTO> response = bankService.transactionHistory(accountId);
 
         return ResponseEntity.ok(response);
     }
