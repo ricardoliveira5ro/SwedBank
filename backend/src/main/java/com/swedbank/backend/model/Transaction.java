@@ -33,6 +33,7 @@ public class Transaction {
     @Column(name = "BALANCE_AFTER")
     private BigDecimal balanceAfter;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "TYPE")
     private TransactionType type;
 

@@ -1,0 +1,92 @@
+package com.swedbank.backend;
+
+import com.swedbank.backend.dto.*;
+import com.swedbank.backend.model.Account;
+import com.swedbank.backend.model.ExchangeRate;
+import com.swedbank.backend.model.Transaction;
+import com.swedbank.backend.model.TransactionType;
+import com.swedbank.backend.repository.AccountRepository;
+import com.swedbank.backend.repository.TransactionRepository;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.UUID;
+
+@Service
+public class BankService {
+
+    private final AccountRepository accountRepository;
+    private final TransactionRepository transactionRepository;
+
+    public BankService(AccountRepository accountRepository, TransactionRepository transactionRepository) {
+        this.accountRepository = accountRepository;
+        this.transactionRepository = transactionRepository;
+    }
+
+    public TransactionResponseDTO addMoney(UUID accountId, TransactionRequestDTO transactionRequest) {
+        return performTransaction(TransactionType.CREDIT, accountId, transactionRequest.amount());
+    }
+
+    public TransactionResponseDTO debitMoney(UUID accountId, TransactionRequestDTO transactionRequest) {
+        return performTransaction(TransactionType.DEBIT, accountId, transactionRequest.amount());
+    }
+
+    public BalanceResponseDTO getBalance(UUID accountId) {
+        Account account = accountRepository.findById(accountId).orElseThrow();
+
+        return new BalanceResponseDTO(account.getBalance(), account.getCurrency().name());
+    }
+
+    public CurrencyExchangeResponseDTO currencyExchange(CurrencyExchangeRequestDTO currencyExchangeRequest) {
+        Account sourceAccount = accountRepository.findById(currencyExchangeRequest.sourceAccount()).orElseThrow();
+        Account targetAccount = accountRepository.findById(currencyExchangeRequest.targetAccount()).orElseThrow();
+
+        if (sourceAccount.getBalance().subtract(currencyExchangeRequest.amount()).compareTo(BigDecimal.ZERO) < 0)
+            throw new RuntimeException();
+
+        double exchangeRate = ExchangeRate.valueOf(sourceAccount.getCurrency().name() + "_TO_" + targetAccount.getCurrency().name()).rate;
+        BigDecimal targetAmount = currencyExchangeRequest.amount().multiply(BigDecimal.valueOf(exchangeRate));
+
+        TransactionResponseDTO sourceResponse = performTransaction(TransactionType.DEBIT, sourceAccount.getId(), currencyExchangeRequest.amount());
+        TransactionResponseDTO targetResponse = performTransaction(TransactionType.CREDIT, targetAccount.getId(), targetAmount);
+
+        return new CurrencyExchangeResponseDTO(sourceResponse.finalBalance(), sourceResponse.currency(), targetResponse.finalBalance(), targetResponse.currency());
+    }
+
+    // -------------
+
+    private TransactionResponseDTO performTransaction(TransactionType transactionType, UUID accountId, BigDecimal amount) {
+        Account account = accountRepository.findById(accountId).orElseThrow();
+
+        // External Call
+
+        BigDecimal currentBalance = account.getBalance();
+        BigDecimal finalBalance;
+
+        if (transactionType == TransactionType.DEBIT) {
+            finalBalance = currentBalance.subtract(amount);
+
+            if (finalBalance.compareTo(BigDecimal.ZERO) < 0)
+                throw new RuntimeException();
+
+        } else {
+            finalBalance = currentBalance.add(amount);
+        }
+
+        account.setBalance(finalBalance);
+
+        accountRepository.save(account);
+
+        Transaction transaction = new Transaction();
+        transaction.setAccount(account);
+        transaction.setAmount(amount);
+        transaction.setType(transactionType);
+        transaction.setBalanceBefore(currentBalance);
+        transaction.setBalanceAfter(finalBalance);
+
+        transactionRepository.save(transaction);
+
+        return new TransactionResponseDTO(accountId, finalBalance, account.getCurrency().name());
+    }
+}
+
