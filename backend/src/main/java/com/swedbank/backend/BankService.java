@@ -7,6 +7,10 @@ import com.swedbank.backend.model.Transaction;
 import com.swedbank.backend.model.TransactionType;
 import com.swedbank.backend.repository.AccountRepository;
 import com.swedbank.backend.repository.TransactionRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -55,13 +59,17 @@ public class BankService {
         return new CurrencyExchangeResponseDTO(sourceResponse.finalBalance(), sourceResponse.currency(), targetResponse.finalBalance(), targetResponse.currency());
     }
 
-    public List<TransactionOverviewResponseDTO> transactionHistory(UUID accountId) {
+    public PaginationResponse<TransactionOverviewResponseDTO> transactionHistory(UUID accountId, int page, int size) {
         Account account = accountRepository.findById(accountId).orElseThrow();
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Transaction> transactionPage = transactionRepository.findByAccount(account, pageable);
 
-        return transactionRepository.findByAccount(account)
+        List<TransactionOverviewResponseDTO> transactionList = transactionRepository.findByAccount(account, pageable)
                 .stream()
                 .map(transaction -> new TransactionOverviewResponseDTO(transaction.getAmount(), transaction.getType(), transaction.getCreatedAt()))
                 .toList();
+
+        return new PaginationResponse<>(transactionList, transactionPage.getNumber(), transactionPage.getSize(), transactionPage.getTotalElements(), transactionPage.getTotalPages());
     }
 
     // -------------

@@ -46,8 +46,8 @@ public class BankController {
     }
 
     @GetMapping("/{accountId}/history")
-    public ResponseEntity<List<TransactionOverviewResponseDTO>> transactionHistory(@PathVariable("accountId") UUID accountId) {
-        List<TransactionOverviewResponseDTO> response = bankService.transactionHistory(accountId);
+    public ResponseEntity<PaginationResponse<TransactionOverviewResponseDTO>> transactionHistory(@PathVariable("accountId") UUID accountId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        PaginationResponse<TransactionOverviewResponseDTO> response = bankService.transactionHistory(accountId, page, size);
 
         return ResponseEntity.ok(response);
     }
