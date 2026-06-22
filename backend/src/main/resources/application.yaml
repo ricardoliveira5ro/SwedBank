@@ -8,3 +8,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+
+external:
+  system:
+    base-url: ${EXTERNAL_API_BASE_URL}

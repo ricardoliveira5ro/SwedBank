@@ -1,5 +1,6 @@
 package com.swedbank.backend;
 
+import com.swedbank.backend.config.WebClientConfig;
 import com.swedbank.backend.dto.*;
 import com.swedbank.backend.model.Account;
 import com.swedbank.backend.model.ExchangeRate;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -23,10 +25,12 @@ public class BankService {
 
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
+    private final WebClientConfig webClientConfig;
 
-    public BankService(AccountRepository accountRepository, TransactionRepository transactionRepository) {
+    public BankService(AccountRepository accountRepository, TransactionRepository transactionRepository, WebClientConfig webClientConfig) {
         this.accountRepository = accountRepository;
         this.transactionRepository = transactionRepository;
+        this.webClientConfig = webClientConfig;
     }
 
     public TransactionResponseDTO addMoney(UUID accountId, TransactionRequestDTO transactionRequest) {
@@ -78,6 +82,7 @@ public class BankService {
         Account account = accountRepository.findById(accountId).orElseThrow();
 
         // External Call
+        externalSystemExecution();
 
         BigDecimal currentBalance = account.getBalance();
         BigDecimal finalBalance;
@@ -106,6 +111,11 @@ public class BankService {
         transactionRepository.save(transaction);
 
         return new TransactionResponseDTO(accountId, finalBalance.setScale(2, RoundingMode.HALF_EVEN), account.getCurrency().name());
+    }
+
+    private void externalSystemExecution() {
+        WebClient webClient = webClientConfig.externalSystemWebClient();
+        webClient.get().retrieve().bodyToMono(String.class);
     }
 }
 
