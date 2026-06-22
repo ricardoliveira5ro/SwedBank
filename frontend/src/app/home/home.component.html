@@ -13,7 +13,7 @@
           <td>{{ account.accountId }}</td>
           <td>{{ account.balance }}</td>
           <td>{{ account.currency }}</td>
-          <td><button class="bg-blue-300 px-3 py-0.5 rounded-sm cursor-pointer">Details</button></td>
+          <td><button class="bg-blue-300 px-3 py-0.5 rounded-sm cursor-pointer" [routerLink]="['/account', account.accountId]">Details</button></td>
         </tr>
        }
     </tbody>

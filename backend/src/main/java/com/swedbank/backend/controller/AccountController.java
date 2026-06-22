@@ -22,7 +22,7 @@ public class AccountController {
         this.accountService = accountService;
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("/all/{userId}")
     public ResponseEntity<List<AccountResponseDTO>> accounts(@PathVariable("userId") UUID userId) {
         List<AccountResponseDTO> response = accountService.getAccounts(userId);
 

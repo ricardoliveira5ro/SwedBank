@@ -38,8 +38,8 @@ public class TransactionController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/transactionId")
-    public ResponseEntity<TransactionOverviewResponseDTO> transaction(@PathVariable("accountId") UUID transactionId) {
+    @GetMapping("/{transactionId}")
+    public ResponseEntity<TransactionOverviewResponseDTO> transaction(@PathVariable("transactionId") UUID transactionId) {
         TransactionOverviewResponseDTO response = transactionService.getTransaction(transactionId);
 
         return ResponseEntity.ok(response);
