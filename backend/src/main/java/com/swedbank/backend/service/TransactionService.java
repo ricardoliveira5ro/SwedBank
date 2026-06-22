@@ -1,4 +1,4 @@
-package com.swedbank.backend;
+package com.swedbank.backend.service;
 
 import com.swedbank.backend.config.WebClientConfig;
 import com.swedbank.backend.dto.*;
@@ -24,13 +24,13 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class BankService {
+public class TransactionService {
 
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
     private final WebClientConfig webClientConfig;
 
-    public BankService(AccountRepository accountRepository, TransactionRepository transactionRepository, WebClientConfig webClientConfig) {
+    public TransactionService(AccountRepository accountRepository, TransactionRepository transactionRepository, WebClientConfig webClientConfig) {
         this.accountRepository = accountRepository;
         this.transactionRepository = transactionRepository;
         this.webClientConfig = webClientConfig;
@@ -42,12 +42,6 @@ public class BankService {
 
     public TransactionResponseDTO debitMoney(UUID accountId, TransactionRequestDTO transactionRequest) {
         return performTransaction(TransactionType.DEBIT, accountId, transactionRequest.amount());
-    }
-
-    public BalanceResponseDTO getBalance(UUID accountId) {
-        Account account = accountRepository.findById(accountId).orElseThrow();
-
-        return new BalanceResponseDTO(account.getBalance(), account.getCurrency().name());
     }
 
     public CurrencyExchangeResponseDTO currencyExchange(CurrencyExchangeRequestDTO currencyExchangeRequest) {
