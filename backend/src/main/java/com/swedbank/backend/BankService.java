@@ -2,6 +2,8 @@ package com.swedbank.backend;
 
 import com.swedbank.backend.config.WebClientConfig;
 import com.swedbank.backend.dto.*;
+import com.swedbank.backend.exception.InsufficientBalanceException;
+import com.swedbank.backend.exception.InvalidAmountException;
 import com.swedbank.backend.model.Account;
 import com.swedbank.backend.model.ExchangeRate;
 import com.swedbank.backend.model.Transaction;
@@ -48,11 +50,14 @@ public class BankService {
     }
 
     public CurrencyExchangeResponseDTO currencyExchange(CurrencyExchangeRequestDTO currencyExchangeRequest) {
+        if (currencyExchangeRequest.amount().compareTo(BigDecimal.ZERO) < 0 || currencyExchangeRequest.amount().compareTo(BigDecimal.ZERO) == 0)
+            throw new InvalidAmountException();
+
         Account sourceAccount = accountRepository.findById(currencyExchangeRequest.sourceAccount()).orElseThrow();
         Account targetAccount = accountRepository.findById(currencyExchangeRequest.targetAccount()).orElseThrow();
 
         if (sourceAccount.getBalance().subtract(currencyExchangeRequest.amount()).compareTo(BigDecimal.ZERO) < 0)
-            throw new RuntimeException();
+            throw new InsufficientBalanceException(currencyExchangeRequest.amount().toString());
 
         double exchangeRate = ExchangeRate.valueOf(sourceAccount.getCurrency().name() + "_TO_" + targetAccount.getCurrency().name()).rate;
         BigDecimal targetAmount = currencyExchangeRequest.amount().multiply(BigDecimal.valueOf(exchangeRate));
@@ -79,6 +84,9 @@ public class BankService {
     // -------------
 
     private TransactionResponseDTO performTransaction(TransactionType transactionType, UUID accountId, BigDecimal amount) {
+        if (amount.compareTo(BigDecimal.ZERO) < 0 || amount.compareTo(BigDecimal.ZERO) == 0)
+            throw new InvalidAmountException();
+
         Account account = accountRepository.findById(accountId).orElseThrow();
 
         // External Call
@@ -91,7 +99,7 @@ public class BankService {
             finalBalance = currentBalance.subtract(amount);
 
             if (finalBalance.compareTo(BigDecimal.ZERO) < 0)
-                throw new RuntimeException();
+                throw new InsufficientBalanceException(amount.toString());
 
         } else {
             finalBalance = currentBalance.add(amount);
