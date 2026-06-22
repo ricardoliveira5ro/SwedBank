@@ -2,6 +2,7 @@ package com.swedbank.backend;
 
 import com.swedbank.backend.config.WebClientConfig;
 import com.swedbank.backend.dto.*;
+import com.swedbank.backend.exception.ExchangeRateNotFoundException;
 import com.swedbank.backend.exception.InsufficientBalanceException;
 import com.swedbank.backend.exception.InvalidAmountException;
 import com.swedbank.backend.model.Account;
@@ -59,7 +60,14 @@ public class BankService {
         if (sourceAccount.getBalance().subtract(currencyExchangeRequest.amount()).compareTo(BigDecimal.ZERO) < 0)
             throw new InsufficientBalanceException(currencyExchangeRequest.amount().toString());
 
-        double exchangeRate = ExchangeRate.valueOf(sourceAccount.getCurrency().name() + "_TO_" + targetAccount.getCurrency().name()).rate;
+        double exchangeRate;
+
+        try {
+            exchangeRate = ExchangeRate.valueOf(sourceAccount.getCurrency().name() + "_TO_" + targetAccount.getCurrency().name()).rate;
+        } catch (IllegalArgumentException e) {
+            throw new ExchangeRateNotFoundException(sourceAccount.getCurrency().name(), targetAccount.getCurrency().name());
+        }
+
         BigDecimal targetAmount = currencyExchangeRequest.amount().multiply(BigDecimal.valueOf(exchangeRate));
 
         TransactionResponseDTO sourceResponse = performTransaction(TransactionType.DEBIT, sourceAccount.getId(), currencyExchangeRequest.amount());

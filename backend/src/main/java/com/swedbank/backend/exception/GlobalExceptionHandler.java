@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler({ InsufficientBalanceException.class, InvalidAmountException.class })
+    @ExceptionHandler({ InsufficientBalanceException.class, InvalidAmountException.class, ExchangeRateNotFoundException.class })
     public ResponseEntity<ErrorResponse> handleBadRequestException(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(ex.getMessage()));
     }
