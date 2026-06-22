@@ -1,0 +1,21 @@
+<main class="flex flex-col h-screen items-center gap-4 p-8">
+  <table class="border-separate border-spacing-x-8 border-spacing-y-4">
+    <thead>
+      <tr>
+        <th class="text-left">Account ID</th>
+        <th class="text-left">Balance</th>
+        <th class="text-left">Currency</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (account of accounts; track account.accountId) {
+        <tr>
+          <td>{{ account.accountId }}</td>
+          <td>{{ account.balance }}</td>
+          <td>{{ account.currency }}</td>
+          <td><button class="bg-blue-300 px-3 py-0.5 rounded-sm cursor-pointer">Details</button></td>
+        </tr>
+       }
+    </tbody>
+  </table>
+</main>
