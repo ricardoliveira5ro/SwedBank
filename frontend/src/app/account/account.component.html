@@ -6,7 +6,7 @@
             <p><span class="font-bold">Currency: </span>{{ account?.currency }}</p>
         </div>
     </div>
-    <div class="flex flex-col items-center">
+    <div class="flex flex-col items-center gap-y-2">
         <h1>Transactions</h1>
         <div #scrollContainer class="max-h-64 overflow-y-auto">
             <table class="border-separate border-spacing-x-8 border-spacing-y-4">
@@ -22,7 +22,7 @@
                     <tr>
                         <td>{{ transaction.amount }}</td>
                         <td>{{ transaction.type }}</td>
-                        <td>{{ transaction.date }}</td>
+                        <td>{{ formatDate(transaction.date) }}</td>
                         <td><button class="bg-blue-300 px-3 py-0.5 rounded-sm cursor-pointer">Details</button></td>
                     </tr>
                 }
@@ -33,5 +33,9 @@
               <p>Loading...</p>
             }
         </div>
+    </div>
+    <div class="flex flex-col items-center gap-y-2">
+        <h1>Balance History</h1>
+        <canvas id="myChart" class="w-full max-w-4xl h-80"></canvas>
     </div>
 </main>

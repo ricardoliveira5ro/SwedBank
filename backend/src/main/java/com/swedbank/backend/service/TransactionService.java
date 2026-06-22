@@ -77,7 +77,7 @@ public class TransactionService {
 
         List<TransactionOverviewResponseDTO> transactionList = transactionRepository.findByAccount(account, pageable)
                 .stream()
-                .map(transaction -> new TransactionOverviewResponseDTO(transaction.getId(), transaction.getAmount(), transaction.getType(), transaction.getCreatedAt()))
+                .map(transaction -> new TransactionOverviewResponseDTO(transaction.getId(), transaction.getAmount(), transaction.getBalanceAfter(), transaction.getType(), transaction.getCreatedAt()))
                 .toList();
 
         return new PaginationResponse<>(transactionList, transactionPage.getNumber(), transactionPage.getSize(), transactionPage.getTotalElements(), transactionPage.getTotalPages());
@@ -86,7 +86,7 @@ public class TransactionService {
     public TransactionOverviewResponseDTO getTransaction(UUID transactionId) {
         Transaction transaction = transactionRepository.findById(transactionId).orElseThrow();
 
-        return new TransactionOverviewResponseDTO(transaction.getId(), transaction.getAmount(), transaction.getType(), transaction.getCreatedAt());
+        return new TransactionOverviewResponseDTO(transaction.getId(), transaction.getAmount(), transaction.getBalanceAfter(), transaction.getType(), transaction.getCreatedAt());
     }
 
     // -------------

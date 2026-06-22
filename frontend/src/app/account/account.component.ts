@@ -3,6 +3,9 @@ import { ActivatedRoute } from '@angular/router';
 import { Account } from '../models/account.model';
 import { HttpClient } from '@angular/common/http';
 import { Transaction } from '../models/transaction.model';
+import { Chart, LineController, CategoryScale, LinearScale, PointElement, LineElement } from 'chart.js';
+
+Chart.register(LineController, CategoryScale, LinearScale, PointElement, LineElement);
 
 @Component({
   selector: 'app-account',
@@ -24,6 +27,7 @@ export class AccountComponent implements AfterViewInit, OnDestroy {
   private observer: IntersectionObserver | null = null;
   private page: number = 0;
   private hasMorePages: boolean = true;
+  private chartInstance: Chart | null = null;
 
   constructor(private route: ActivatedRoute) {}
 
@@ -45,6 +49,7 @@ export class AccountComponent implements AfterViewInit, OnDestroy {
           this.transactions = data.content;
           this.page = data.page;
           this.hasMorePages = data.page + 1 < data.totalPages;
+          this.updateChart();
         }, error: (err) => console.log(err)
       });
   }
@@ -60,6 +65,47 @@ export class AccountComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     this.observer?.disconnect();
+    this.chartInstance?.destroy();
+  }
+
+  private updateChart() {
+    const ctx = document.getElementById('myChart') as HTMLCanvasElement;
+    if (!ctx || this.transactions.length === 0) return;
+
+    this.chartInstance?.destroy();
+
+    const sorted = [...this.transactions].sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+
+    this.chartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: sorted.map(t => new Date(t.date).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', second: '2-digit' })),
+        datasets: [{
+          label: 'Balance',
+          data: sorted.map(t => t.balanceAfter),
+          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          fill: false,
+          tension: 0.1
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: { title: { display: true, text: 'Date' } },
+          y: { title: { display: true, text: 'Balance' }, beginAtZero: false }
+        }
+      }
+    });
+  }
+
+  formatDate(date: Date): string {
+    return new Date(date).toLocaleString('en-US', {
+      month: 'short', day: 'numeric',
+      hour: 'numeric', minute: '2-digit', second: '2-digit'
+    });
   }
 
   loadMoreTransactions() {
@@ -77,6 +123,7 @@ export class AccountComponent implements AfterViewInit, OnDestroy {
           this.page = data.page;
           this.hasMorePages = data.page + 1 < data.totalPages;
           this.isLoading = false;
+          this.updateChart();
         },
         error: (err) => {
           console.log(err);
