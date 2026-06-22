@@ -31,6 +31,12 @@ public class AccountService {
                 .toList();
     }
 
+    public AccountResponseDTO getAccount(UUID accountId) {
+        Account account = accountRepository.findById(accountId).orElseThrow();
+
+        return new AccountResponseDTO(account.getId(), account.getBalance(), account.getCurrency().name());
+    }
+
     public BalanceResponseDTO getBalance(UUID accountId) {
         Account account = accountRepository.findById(accountId).orElseThrow();
 

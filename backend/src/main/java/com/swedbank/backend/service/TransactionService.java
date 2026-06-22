@@ -83,6 +83,12 @@ public class TransactionService {
         return new PaginationResponse<>(transactionList, transactionPage.getNumber(), transactionPage.getSize(), transactionPage.getTotalElements(), transactionPage.getTotalPages());
     }
 
+    public TransactionOverviewResponseDTO getTransaction(UUID transactionId) {
+        Transaction transaction = transactionRepository.findById(transactionId).orElseThrow();
+
+        return new TransactionOverviewResponseDTO(transaction.getAmount(), transaction.getType(), transaction.getCreatedAt());
+    }
+
     // -------------
 
     private TransactionResponseDTO performTransaction(TransactionType transactionType, UUID accountId, BigDecimal amount) {

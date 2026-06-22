@@ -38,6 +38,13 @@ public class TransactionController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/transactionId")
+    public ResponseEntity<TransactionOverviewResponseDTO> transaction(@PathVariable("accountId") UUID transactionId) {
+        TransactionOverviewResponseDTO response = transactionService.getTransaction(transactionId);
+
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/{accountId}/history")
     public ResponseEntity<PaginationResponse<TransactionOverviewResponseDTO>> transactionHistory(@PathVariable("accountId") UUID accountId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         PaginationResponse<TransactionOverviewResponseDTO> response = transactionService.transactionHistory(accountId, page, size);

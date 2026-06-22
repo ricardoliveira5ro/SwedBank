@@ -29,6 +29,13 @@ public class AccountController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/{accountId}")
+    public ResponseEntity<AccountResponseDTO> account(@PathVariable("accountId") UUID accountId) {
+        AccountResponseDTO response = accountService.getAccount(accountId);
+
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/{accountId}/balance")
     public ResponseEntity<BalanceResponseDTO> balance(@PathVariable("accountId") UUID accountId) {
         BalanceResponseDTO response = accountService.getBalance(accountId);
