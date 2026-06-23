@@ -2,6 +2,8 @@ import { Component, inject } from '@angular/core';
 import { Transaction } from '../models/transaction.model';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 @Component({
   selector: 'app-transaction',
@@ -34,5 +36,22 @@ export class TransactionComponent {
       month: 'short', day: 'numeric',
       hour: 'numeric', minute: '2-digit', second: '2-digit'
     });
+  }
+
+  exportTransaction(transaction: Transaction | undefined) {
+    if (!transaction) return;
+
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text("Transaction Overview", 14, 15);
+    doc.setFontSize(12);
+    const headers = [["Amount", "Type", "Date", "Balance"]];
+    const data = [[transaction.amount,  transaction.type, this.formatDate(transaction.date), transaction.balanceAfter]];
+    autoTable(doc, {
+      head: headers,
+      body: data,
+      startY: 20,
+    });
+    doc.save(transaction.transactionId + ".pdf");
   }
 }
