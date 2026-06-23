@@ -23,7 +23,7 @@
                         <td>{{ transaction.amount }}</td>
                         <td>{{ transaction.type }}</td>
                         <td>{{ formatDate(transaction.date) }}</td>
-                        <td><button class="bg-blue-300 px-3 py-0.5 rounded-sm cursor-pointer">Details</button></td>
+                        <td><button class="bg-blue-300 px-3 py-0.5 rounded-sm cursor-pointer" [routerLink]="['/transaction', transaction.transactionId]">Details</button></td>
                     </tr>
                 }
                 </tbody>

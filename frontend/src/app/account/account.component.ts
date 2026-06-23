@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, inject, OnDestroy, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Account } from '../models/account.model';
 import { HttpClient } from '@angular/common/http';
 import { Transaction } from '../models/transaction.model';
@@ -10,7 +10,7 @@ Chart.register(LineController, CategoryScale, LinearScale, PointElement, LineEle
 @Component({
   selector: 'app-account',
   standalone: true,
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './account.component.html',
   styleUrl: './account.component.css'
 })
