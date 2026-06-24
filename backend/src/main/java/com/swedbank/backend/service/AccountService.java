@@ -25,7 +25,7 @@ public class AccountService {
     public List<AccountResponseDTO> getAccounts(UUID userId) {
         User user = userRepository.findById(userId).orElseThrow();
 
-        return accountRepository.findByUser(user)
+        return accountRepository.findByUserOrderByCurrency(user)
                 .stream()
                 .map(account -> new AccountResponseDTO(account.getId(), account.getBalance(), account.getCurrency().name()))
                 .toList();

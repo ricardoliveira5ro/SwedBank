@@ -1,0 +1,39 @@
+<div class="flex flex-row gap-x-8">
+    <div class="flex flex-col gap-4 border p-4 rounded">
+      <select #accountSelect class="border p-1">
+        <option value="" disabled selected>Select an account</option>
+        @for (acc of accounts; track acc.accountId) {
+          <option [value]="acc.accountId">{{ acc.accountId }} ({{ acc.currency }})</option>
+        }
+      </select>
+    
+      <input #amountInput type="number" placeholder="Amount" class="border p-1" />
+    
+      <div class="flex gap-2">
+        <button type="button" (click)="isDebit = true" [class.bg-blue-500]="isDebit" [class.text-white]="isDebit" class="flex-1 border p-1 rounded cursor-pointer">Debit</button>
+        <button type="button" (click)="isDebit = false" [class.bg-blue-500]="!isDebit" [class.text-white]="!isDebit" class="flex-1 border p-1 rounded cursor-pointer">Credit</button>
+      </div>
+    
+      <button (click)="onDebitOrCredit(accountSelect, amountInput)" class="bg-green-500 text-white p-1 rounded cursor-pointer">Submit</button>
+    </div>
+    <div class="flex flex-col gap-4 border p-4 rounded">
+      <select #sourceSelect (change)="sourceAccountId = sourceSelect.value" class="border p-1">
+        <option value="" disabled selected>Select source account</option>
+        @for (acc of accounts; track acc.accountId) {
+          <option [value]="acc.accountId">{{ acc.accountId }} ({{ acc.currency }})</option>
+        }
+      </select>
+
+      <select #targetSelect class="border p-1">
+        <option value="" disabled selected>Select target account</option>
+        @for (acc of filteredTargets; track acc.accountId) {
+          <option [value]="acc.accountId">{{ acc.accountId }} ({{ acc.currency }})</option>
+        }
+      </select>
+
+      <input #exchangeAmount type="number" placeholder="Amount" class="border p-1" />
+
+      <button (click)="onExchange(sourceSelect, targetSelect, exchangeAmount)" class="bg-green-500 text-white p-1 rounded cursor-pointer">Exchange</button>
+    </div>
+</div>
+
